@@ -36,11 +36,12 @@ iframe{width:100%;height:100%;border:0;background:#fff;border-radius:12px}#body 
 .modal{position:fixed;inset:0;background:#000a;z-index:9;display:flex;align-items:center;justify-content:center}.modal>div{background:var(--card);padding:16px;border-radius:18px;width:92%;max-width:420px}
 .modal canvas{width:100%;background:#fff;border-radius:10px;touch-action:none}.modal div div{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}.modal button{padding:8px 16px;border-radius:10px;border:1px solid var(--ln)}.modal .p{background:var(--ac);color:var(--on)}
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#000c;color:#fff;padding:8px 18px;border-radius:20px;z-index:10}
+#body{touch-action:pan-x pan-y}.doc{font-size:calc(16px*var(--z,1))}#sh{font-size:calc(14px*var(--z,1))}pre.code{font-size:calc(13px*var(--z,1))}#body img.pic{max-width:none;width:calc(100%*var(--z,1))}
 </style></head><body data-tool="view">
 <main id="home"><button id="lang"></button>
 <div class="fan"><i style="--c:#d64545;--r:-16deg;--y:8px">PDF</i><i style="--c:#2b6cb0;--r:-8deg;--y:-2px">DOCX</i><i style="--c:#2f855a;--r:0deg;--y:-10px">XLSX</i><i style="--c:#dd6b20;--r:8deg;--y:-2px">HTML</i><i style="--c:#6b46c1;--r:16deg;--y:8px">PY</i></div>
 <h1>দেখো</h1><p id="sub"></p><button class="big" id="open"></button><p class="hint" id="hint"></p>
-<section class="about"><b>Dekho</b> v1.0 · MIT<br><span id="dev"></span>: Md. Mehedi Hasan<br><a href="mailto:mehedisub59@gmail.com">mehedisub59@gmail.com</a> · <a href="https://facebook.com/mehedi.am" target="_blank">Facebook</a> · <a href="https://github.com/mehedi059" target="_blank">GitHub</a></section></main>
+<section class="about"><b>Dekho</b> v1.1 · MIT<br><span id="dev"></span>: Md. Mehedi Hasan<br><a href="mailto:mehedisub59@gmail.com">mehedisub59@gmail.com</a> · <a href="https://facebook.com/mehedi.am" target="_blank">Facebook</a> · <a href="https://github.com/mehedi059" target="_blank">GitHub</a></section></main>
 <section id="view" hidden><header><button id="back">‹</button><b id="nm"></b><span id="acts"></span></header><div id="body"></div><nav id="tools" hidden></nav></section>
 <input type="file" id="f" hidden>
 <script src="libs/mammoth.browser.min.js"></script><script src="libs/xlsx.full.min.js"></script><script src="libs/pdf-lib.min.js"></script><script src="libs/highlight.min.js"></script>
@@ -48,7 +49,7 @@ iframe{width:100%;height:100%;border:0;background:#fff;border-radius:12px}#body 
 const $=s=>document.querySelector(s),B=$('#body'),A=$('#acts'),T=$('#tools'),L={
 bn:{sub:'যেকোনো ফাইল, এক জায়গায়',open:'ফাইল খুলুন',hint:'ফাইল ম্যানেজারে ফাইলে ট্যাপ করে “Open with → Dekho” বেছে নিলেও খুলবে।',lang:'English',copy:'সব কপি',code:'কোড',prev:'প্রিভিউ',save:'সেভ',v:'দেখুন',hl:'হাইলাইট',nt:'মন্তব্য',sg:'সই',er:'ইরেজার',ask:'মন্তব্য লিখুন',bad:'এই ফাইলটি খোলা যায়নি',dev:'ডেভেলপার',ok:'ঠিক আছে',clr:'মুছুন',draw:'এখানে সই করুন',cp:'কপি হয়েছে'},
 en:{sub:'Every file, one place',open:'Open a file',hint:'You can also tap a file in your file manager and choose “Open with → Dekho”.',lang:'বাংলা',copy:'Copy all',code:'Code',prev:'Preview',save:'Save',v:'View',hl:'Highlight',nt:'Note',sg:'Sign',er:'Erase',ask:'Write a note',bad:'This file could not be opened',dev:'Developer',ok:'OK',clr:'Clear',draw:'Sign here',cp:'Copied'}};
-let lg=localStorage.lang||'bn',cur,D,lib,ann,del,sig,pdfBytes;const t=k=>L[lg][k];
+let lg=localStorage.lang||'bn',cur,D,lib,ann,del,sig,pdfBytes,z=1,P,asp,io;const t=k=>L[lg][k];
 function ui(){document.documentElement.lang=lg;['sub','open','hint','lang'].forEach(k=>$('#'+k).textContent=t(k));$('#dev').textContent=t('dev')}ui();
 $('#lang').onclick=()=>{lg=lg=='bn'?'en':'bn';localStorage.lang=lg;ui()};
 $('#open').onclick=()=>$('#f').click();
@@ -59,8 +60,8 @@ const toast=s=>{const d=document.createElement('div');d.className='toast';d.text
 const btn=(s,f,c='a')=>{const b=document.createElement('button');b.className=c;b.textContent=s;b.onclick=f;return b};
 const copy=s=>navigator.clipboard.writeText(s).then(()=>toast(t('cp')));
 const ab=u=>u.buffer.slice(u.byteOffset,u.byteOffset+u.byteLength);
-async function openFile(n,u){const x=(n.split('.').pop()||'').toLowerCase();$('#home').hidden=true;$('#view').hidden=false;$('#nm').textContent=n;B.innerHTML='';A.innerHTML='';T.hidden=true;document.body.dataset.tool='view';cur={n,u};
-try{if(x=='pdf')await pdf(u);else if(x=='docx')await docx(u);else if(/^(xlsx|xls|csv|ods)$/.test(x))sheet(u);else if(/^(png|jpe?g|gif|webp|bmp|svg)$/.test(x))img(u,x);else if(x=='doc')throw 0;else txt(u,x)}catch(e){console.error(e);B.innerHTML='<p class="err">'+t('bad')+'</p>'}}
+async function openFile(n,u){const x=(n.split('.').pop()||'').toLowerCase();$('#home').hidden=true;$('#view').hidden=false;$('#nm').textContent=n;B.innerHTML='';A.innerHTML='';T.hidden=true;document.body.dataset.tool='view';cur={n,u};D=null;z=1;B.style.setProperty('--z',1);
+try{if(x=='pdf')await pdf(u);else if(x=='docx')await docx(u);else if(/^(xlsx|xls|csv|ods)$/.test(x))sheet(u);else if(/^(png|jpe?g|gif|webp|bmp|svg)$/.test(x))img(u,x);else if(x=='doc')throw 0;else txt(u,x);A.append(btn('−',()=>zoom(.8)),btn('+',()=>zoom(1.25)))}catch(e){console.error(e);B.innerHTML='<p class="err">'+t('bad')+'</p>'}}
 async function docx(u){const r=await mammoth.convertToHtml({arrayBuffer:ab(u)});B.innerHTML='<article class="doc">'+r.value+'</article>'}
 function sheet(u){const w=XLSX.read(u,{type:'array'}),tb=document.createElement('div'),sh=document.createElement('div');tb.className='tabs';sh.id='sh';
 w.SheetNames.forEach(s=>{const b=btn(s,()=>{tb.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');sh.innerHTML=XLSX.utils.sheet_to_html(w.Sheets[s],{header:'',footer:''})},'');tb.append(b)});B.append(tb,sh);tb.firstChild.click()}
@@ -69,11 +70,14 @@ function txt(u,x){const s=new TextDecoder().decode(u),p=document.createElement('
 if(s.length<3e5&&hljs.getLanguage(x))p.innerHTML=hljs.highlight(s,{language:x}).value;else if(s.length<3e5)p.innerHTML=hljs.highlightAuto(s).value;else p.textContent=s;B.append(p);
 A.append(btn(t('copy'),()=>copy(s)));
 if(/^html?$/.test(x)){let on=0;const f=document.createElement('iframe');f.sandbox='allow-scripts';f.srcdoc=s;const b=btn(t('prev'),()=>{on=!on;b.textContent=on?t('code'):t('prev');B.replaceChildren(on?f:p)});A.prepend(b)}}
+function layout(){const r=B.scrollTop/(B.scrollHeight||1),W=(B.clientWidth-16)*z;io&&io.disconnect();B.innerHTML='';P=document.createElement('div');B.append(P);
+io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!e.target.r){e.target.r=1;draw(e.target)}}),{root:B,rootMargin:'800px'});
+for(let i=0;i<D.numPages;i++){const c=document.createElement('div');c.className='pg';c.dataset.i=i;c.style.cssText=`width:${W}px;height:${W*asp}px`;c.classList.toggle('gone',del.has(i));P.append(c);io.observe(c)}B.scrollTop=r*B.scrollHeight}
+function zoom(f){z=Math.min(4,Math.max(.5,z*f));D?layout():B.style.setProperty('--z',z)}
 async function pdf(u){pdfBytes=u;ann={};del=new Set();lib=await import('./libs/pdf.min.js');lib.GlobalWorkerOptions.workerSrc='libs/pdf.worker.min.js';D=await lib.getDocument({data:u.slice()}).promise;
-const p1=await D.getPage(1),v=p1.getViewport({scale:1}),h=(B.clientWidth-16)*v.height/v.width,io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!e.target.r){e.target.r=1;draw(e.target)}}),{root:B,rootMargin:'800px'});
-for(let i=0;i<D.numPages;i++){const c=document.createElement('div');c.className='pg';c.dataset.i=i;c.style.cssText=`width:${B.clientWidth-16}px;height:${h}px`;B.append(c);io.observe(c)}
+const p1=await D.getPage(1),v=p1.getViewport({scale:1});asp=v.height/v.width;layout();
 A.append(btn(t('save'),save));T.hidden=false;T.innerHTML='';[['view','v'],['hl','hl'],['nt','nt'],['sg','sg'],['er','er']].forEach(([k,l])=>{const b=btn(t(l),()=>{document.body.dataset.tool=k;T.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on')},'');if(k=='view')b.classList.add('on');T.append(b)})}
-async function draw(c){const p=await D.getPage(+c.dataset.i+1),dpr=Math.min(devicePixelRatio,2),w=B.clientWidth-16,s=w/p.getViewport({scale:1}).width,v=p.getViewport({scale:s}),v2=p.getViewport({scale:s*dpr});
+async function draw(c){const p=await D.getPage(+c.dataset.i+1),dpr=Math.min(devicePixelRatio,2)/(z>2?2:1),w=(B.clientWidth-16)*z,s=w/p.getViewport({scale:1}).width,v=p.getViewport({scale:s}),v2=p.getViewport({scale:s*dpr});
 c.style.height=v.height+'px';const cv=document.createElement('canvas');cv.width=v2.width;cv.height=v2.height;c.append(cv);await p.render({canvasContext:cv.getContext('2d'),viewport:v2}).promise;
 const tl=document.createElement('div');tl.className='textLayer';tl.style.setProperty('--total-scale-factor',s);tl.style.setProperty('--scale-factor',s);c.append(tl);
 new lib.TextLayer({textContentSource:p.streamTextContent(),container:tl,viewport:v}).render();
@@ -102,4 +106,9 @@ else{const m=await d.embedPng(a.t=='s'?a.d:noteImg(a.s)),w=a.t=='s'?a.w*W:m.widt
 [...del].sort((a,b)=>b-a).forEach(i=>d.removePage(i));const o=await d.save();
 let s='';for(let i=0;i<o.length;i+=32768)s+=String.fromCharCode.apply(null,o.subarray(i,i+32768));const n=cur.n.replace(/\.pdf$/i,'')+'-dekho.pdf',C=Capacitor.Plugins;
 const r=await C.Filesystem.writeFile({path:n,data:btoa(s),directory:'CACHE'});await C.Share.share({title:n,url:r.uri})}catch(e){console.error(e);toast(t('bad'))}}
+let p0=0,z0=1,nz=1;const dist=e=>Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+B.addEventListener('touchmove',e=>{if(e.touches.length!=2||document.body.dataset.tool!='view')return;if(!p0){p0=dist(e);z0=z}e.preventDefault();nz=Math.min(4,Math.max(.5,z0*dist(e)/p0));
+if(D)P.style.cssText='transform-origin:0 0;transform:scale('+nz/z+')';else{z=nz;B.style.setProperty('--z',z)}},{passive:false});
+B.addEventListener('touchend',e=>{if(p0&&e.touches.length<2){p0=0;if(D){z=nz;layout()}}});
+const AP=window.Capacitor?.Plugins?.App;AP?.addListener('backButton',()=>{const m=document.querySelector('.modal');if(m)m.remove();else if(!$('#view').hidden)$('#back').click();else AP.exitApp()});
 </script></body></html>
