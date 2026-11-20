@@ -1,0 +1,22 @@
+{
+  "name": "dekho",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "author": "Md. Mehedi Hasan",
+  "dependencies": {
+    "@capacitor/android": "latest",
+    "@capacitor/core": "latest",
+    "@capacitor/filesystem": "latest",
+    "@capacitor/share": "latest",
+    "@fontsource/noto-sans-bengali": "latest",
+    "@highlightjs/cdn-assets": "latest",
+    "mammoth": "latest",
+    "pdf-lib": "latest",
+    "pdfjs-dist": "latest",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-latest/xlsx-latest.tgz"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "latest"
+  }
+}
