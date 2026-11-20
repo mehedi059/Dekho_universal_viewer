@@ -38,6 +38,12 @@ jobs:
       - name: Add Android platform
         run: npx cap add android
 
+      - name: Generate app icon
+        run: |
+          mkdir -p assets
+          cp icon-only.png icon-foreground.png icon-background.png assets/
+          npx @capacitor/assets generate --android
+
       - name: Enable "Open with" for files
         run: |
           D=android/app/src/main/java/com/mehedi/dekho
